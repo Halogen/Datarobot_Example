@@ -5,35 +5,36 @@ MAINTAINER myname <mail@example.com>
 
 # This prevents Python from writing out pyc files
 ENV PYTHONDONTWRITEBYTECODE 1
-# This keeps Python from buffering stdin/stdout
-ENV PYTHONUNBUFFERED 1
+##startr
+FROM ubuntu:16.04
+FROM python:3.7
 
-# install system dependencies
-RUN apt-get update \
-    && apt-get -y install gcc make  \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update -y && \
+    apt-get install -y python-pip python-dev && \ 
+    apt-get install -y curl wget && \
+    apt-get install -y default-jre
 
-# install dependencies
-RUN pip install --no-cache-dir --upgrade pip
+WORKDIR /app
+COPY . /app
+RUN pip install -r /app/requirements.txt
+RUN pip install /app/lib/datarobot_mlops-7.2.1-py2.py3-none-any.whl 
 
-# set work directory
-WORKDIR /src/app
+ARG ENDPOINT=' ENDPOINT'
+ARG TOKEN=' API TOKEN'
+ARG USERNAME='euclidscott07@gmail.com'
+ARG PROJECT_ID='YPROJECT_ID'
+ARG MODEL_ID='MODEL_ID'
+ARG CHANNEL_CONFIG=' CHANNEL CONFIG'
+ARG DEPLOYMENT_ID='  DEPLOYMENT_ID'
 
-# copy project
-COPY . .
+ENV DATAROBOT_ENDPOINT=$ENDPOINT
+ENV DATAROBOT_API_TOKEN=$TOKEN
+ENV USERNAME=$USERNAME
+ENV PROJECT_ID=$PROJECT_ID
+ENV MODEL_ID=$MODEL_ID
+ENV CHANNEL_CONFIG=$CHANNEL_CONFIG
+ENV DEPLOYMENT_ID=$DEPLOYMENT_ID
 
-# copy requirements.txt
-COPY ./requirements.txt /src/app/requirements.txt
+RUN mkdir tmp
+CMD python /app/app.py && python /app/datarobot_diabetes.py 
 
-# install project requirements
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Generate pikle file
-WORKDIR /src/app/model
-RUN python model.py
-
-# set work directory
-WORKDIR /src/app
-
-# Run app.py when the container launches
-CMD [ "./start.sh"] 
