@@ -1,8 +1,6 @@
 #I specify the parent base image which is the python version 3.7
 FROM python:3.7
 
-MAINTAINER myname <mail@example.com>
-
 # This prevents Python from writing out pyc files
 ENV PYTHONDONTWRITEBYTECODE 1
 ##startr
